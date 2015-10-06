@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>ES2015 and Beyond!</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<style>
+		.runButton {
+		  background: #8f8f8f;
+		  background-image: -webkit-linear-gradient(top, #8f8f8f, #666666);
+		  background-image: -moz-linear-gradient(top, #8f8f8f, #666666);
+		  background-image: -ms-linear-gradient(top, #8f8f8f, #666666);
+		  background-image: -o-linear-gradient(top, #8f8f8f, #666666);
+		  background-image: linear-gradient(to bottom, #8f8f8f, #666666);
+		  color: #ffffff;
+		  font-size: 20px;
+		  padding: 10px 20px 10px 20px;
+		  text-decoration: none;
+		}
+
+		.green {
+			color: green;
+		}
+
+		.red {
+			color: red;
+		}
+		</style>
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	<script src="lib/js/babel-core/browser.js"></script>
+	<script>
+
+		function run(id, outputId) {
+			var code = document.getElementById(id);
+			var text = '';
+			for (var i = 0; i < code.childNodes.length; i++) {
+				if (code.childNodes[i].nodeType === 1) {
+					text += code.childNodes[i].innerText;
+				} else {
+					text += code.childNodes[i].nodeValue
+				}
+	
+			}
+
+			var find = 'console\\.log\\(';
+			var re = new RegExp(find, 'g');
+
+			text = text.replace(re, 'consoleLog("' + outputId + '",');
+			console.log(text);
+			var div = document.getElementById(outputId);
+			div.innerText = '';
+			try {
+				babel.run(text);
+			} catch (e) {
+				showError(div, e);
+			}
+			
+		}
+
+		function showError(div, err) {
+			var span = document.createElement('span');
+			span.style.color = 'red';
+			span.appendChild(document.createTextNode(err.toString()));
+
+			div.appendChild(span)
+		}
+
+		function consoleLog(outputId) {
+			//console.log(outputId, text);
+			var toRender = '';
+			var div = document.getElementById(outputId);
+
+			for (var i = 1; i < arguments.length; i++) {
+				toRender += arguments[i] + " ";
+			}
+
+			var t = document.createTextNode(toRender + '\n');
+			div.appendChild(t);
+		}
+
+	</script>
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>ECMAScript 2015</h1>
+					<h3>The present and future of JavaScript</h3>
+					<h5>Part I</h5>
+					<p>
+						<small>Created by <a href="mailto:patrick.wolf@pointsource.com">Patrick Wolf</a></small>
+					</p>
+
+				</section>
+
+				<section>
+					<h3>What we'll cover today</h3>
+					<ul>
+						<li><code>let</code> and <code>const</code></li>
+						<li>Arrow functions</li>
+						<li>Destructuring</li>
+						<li>Default parameters</li>
+						<li>Rest parameters</li>
+						<li>Spread operator</li>
+						<li>Template strings</li>
+					</ul>
+
+				</section>
+
+				<section>
+					<h3>ES2015 Support</h3>
+					<table>
+						<thead>
+							<tr>
+								<th>Feature</th>
+								<th>Chrome</th>
+								<th>Safari</th>
+								<th>Edge</th>
+								<th>Firefox</th>
+								<th>Babel</th>
+								<th>Node</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>let &amp; const</td>
+								<td><span class="green">✓</span></td>
+								<td><span class="red">x</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+							</tr>
+							<tr>
+								<td>Arrow functions</td>
+								<td><span class="green">✓</span></td>
+								<td><span class="red">x</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+							</tr>
+							<tr>
+								<td>Destructuring</td>
+								<td><span class="red">x</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="red">x</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="red">x</span></td>
+							</tr>
+							<tr>
+								<td>Default</td>
+								<td><span class="red">x</span></td>
+								<td><span class="red">x</span></td>
+								<td><span class="red">x</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="red">x</span></td>
+							</tr>
+							<tr>
+								<td>Rest</td>
+								<td><span class="red">x</span></td>
+								<td><span class="red">x</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="red">x</span></td>
+							</tr>
+							<tr>
+								<td>Spread</td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="red">x</span></td>
+							</tr>
+							<tr>
+								<td>Templates</td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+								<td><span class="green">✓</span></td>
+							</tr>
+						</tbody>
+					</table>
+
+				</section>
+
+				<section>
+					<h3>Babel</h3>
+					<ul>
+						<li>Transforms ES2015 to ES6</li>
+						<li>Provides polyfills when necessary</li>
+						<li>Supports JSX</li>
+						<li>Integrates with build systems</li>
+					</ul>
+					<p>
+						<a href="https://babeljs.io/">https://babeljs.io/</a>
+					</p>
+
+				</section>
+
+				<section>
+					<section>
+						<h3><code>let</code> and <code>const</code></h3>
+						<p>What's wrong with <code>var</code>?</p>
+						<p class="fragment">
+							<code>var</code> is <em>function</em> scoped.
+						</p>
+						<div class="fragment">
+							<pre><code class="javascript" data-trim id='varCode'>
+for (var i = 0; i < 10; i++) {
+	var x = i;
+}
+
+console.log('i=', i);
+console.log('x=', x);
+							</code></pre>
+						<input class="runButton" type='button' value="Run" onclick='run("varCode", "varOutput")'/>
+						<pre id="varOutput"></pre>
+						</div>	
+					</section>
+
+					<section>
+						<h3><code>let</code> and <code>const</code></h3>
+						<p><code>let</code> to the rescue!</p>
+						<div class="fragment">
+							<pre><code class="javascript" data-trim id='letCode'>
+for (var i = 0; i < 10; i++) {
+	let x = i;
+}
+
+console.log('i=', i);
+console.log('x=', x);
+							</code></pre>
+							<input class="runButton" type='button' value="Run" onclick='run("letCode", "letOutput")'/>
+							<pre id="letOutput"></pre>
+</div>								
+					</section>
+
+					<section>
+						<h3><code>let</code> and <code>const</code></h3>
+						<p><code>const</code> is a block scoped, read-only reference</p>
+						<div class="fragment current-visible" style="height: 0px">
+							<pre><code class="javascript" data-trim id='const1Code'>
+const pi = 3.141592653589793;
+pi = 22/7;
+							</code></pre>
+							<input class="runButton" type='button' value="Run" onclick='run("const1Code", "const1Output")'/>
+							<pre id="const1Output"></pre>	
+						</div>
+
+						<div class="fragment current-visible" style="height: 0px">
+							<pre><code class="javascript" data-trim id='const2Code'>
+const nums = [1, 2, 3];
+nums[0] = -1;
+console.log(nums);
+							</code></pre>
+							<input class="runButton" type='button' value="Run" onclick='run("const2Code", "const2Output")'/>
+							<pre id="const2Output"></pre>
+						</div>
+
+						<div class="fragment">
+							<pre><code class="javascript" data-trim id='const3Code'>
+const nums = [1, 2, 3];
+nums = [4, 5, 6];
+							</code></pre>
+							<input class="runButton" type='button' value="Run" onclick='run("const3Code", "const3Output")'/>
+							<pre id="const3Output"></pre>
+						</div>
+
+					</section>
+
+				</section>
+
+				<section>
+					<section>
+						<h3>Arrow functions <code>=></code></h3>
+						<p>A shorter function declaration with improved <code>this</code> binding.</p>
+						<p class="fragment">The value of <code>this</code> inside of the function is determined by where the arrow function is defined, not where it is used.</p>
+
+					</section>
+
+					<section>
+						<h3>Arrow functions <code>=></code></h3>
+						<div class="fragment">
+							<p>Before...</p>
+							<pre><code class="javascript" data-trim>
+(function (x) {
+   return x * x;
+})
+							</code></pre>
+						</div>
+						
+						<div class="fragment">
+							<p>After...</p>
+							<pre><code class="javascript" data-trim>
+(x) => {return x * x};
+							</code></pre>
+						</div>
+					</section>
+
+					<section>
+						<h3>Arrow functions <code>=></code></h3>
+						<p>Multiple arguments are supported</p>
+						<div class="fragment">
+							<pre><code class="javascript" data-trim>
+(x, y) => {return x * y};
+							</code></pre>
+						</div>
+					</section>
+
+					<section>
+						<h3>Arrow functions <code>=></code></h3>
+						<p>Parenthesis are optional for single arguments</p>
+						<div class="fragment">
+							<p>Before...</p>
+							<pre><code class="javascript" data-trim>
+(x) => {return x * x};
+							</code></pre>
+						</div>
+						<div class="fragment">
+							<p>After...</p>
+							<pre><code class="javascript" data-trim>
+x => {return x * x};
+							</code></pre>
+						</div>
+					</section>
+
+					<section>
+						<h3>Arrow functions <code>=></code></h3>
+						<p>Curly braces and return statement are optional for single-line expressions</p>
+						<div class="fragment">
+							<p>Before...</p>
+							<pre><code class="javascript" data-trim>
+x => {return x * x};
+							</code></pre>
+						</div>
+						<div class="fragment">
+							<p>After...</p>
+							<pre><code class="javascript" data-trim>
+x => x * x;
+							</code></pre>
+						</div>
+					</section>
+
+					<section>
+						<h3>Arrow functions <code>=></code></h3>
+						<p>Examples<p>
+						<div class="fragment current-visible" style='height: 0px'>
+							<pre><code class="javascript" data-trim id='arrow1Code'>
+let squares = [ 1, 2, 3 ].map(x => x * x);
+console.log(squares);
+							</code></pre>
+							<input class="runButton" type='button' value="Run" onclick='run("arrow1Code", "arrow1Output")'/>
+							<pre id="arrow1Output"></pre>
+						</div>
+
+						<div class="fragment current-visible" style='height: 0px'>
+							<pre><code class="javascript" data-trim id='arrow2Code'>
+let sorted = [4, 2, 3, 1].sort((a, b)=> a - b);
+console.log(sorted);
+							</code></pre>
+							<input class="runButton" type='button' value="Run" onclick='run("arrow2Code", "arrow2Output")'/>
+							<pre id="arrow2Output"></pre>
+						</div>
+
+					</section>
+
+					<section>
+						<h3>Arrow functions <code>=></code></h3>
+						<p>Improved <code>this</code> binding<p>
+						<div class="fragment">
+							<p>Before...</p>
+							<pre><code class="javascript" data-trim>
+var that = this;
+element.addEventListener('click', function() {
+   that.handleClick();
+});
+							</code></pre>
+						</div>
+						<div class="fragment">
+							<p>After...</p>
+							<pre><code class="javascript" data-trim>
+element.addEventListener('click', () => this.handleClick())
+							</code></pre>
+						</div>
+
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h3>Destructuring</h3>
+						<p>Convenient syntax for extracting data from objects or arrays.</p>
+
+					</section>
+
+					<section>
+						<h4>But first...</h4>
+						<h3>Enhanced Object Literals</h3>
+						<div class="fragment">
+							<p>Instead of...</p>
+							<pre><code class="javascript" data-trim>
+var first = 'Max';
+var last = 'Power';
+var person = {
+	first: first,
+	last: last
+}
+							</code></pre>
+						</div>
+						<div class="fragment">
+							<p>We can use</p>
+							<pre><code class="javascript" data-trim id='des6Code'>
+var first = 'Max';
+var last = 'Power';
+let person = {first, last}
+
+console.log(JSON.stringify(person));
+							</code></pre>
+							<input class="runButton" type='button' value="Run" onclick='run("des6Code", "des6Output")'/>
+							<pre id="des6Output"></pre>
+						</div>
+
+					</section>
+
+					<section>
+						<h3>Destructuring Arrays</h3>
+						<div class="fragment">
+							<p>Instead of...</p>
+							<pre><code class="javascript" data-trim>
+var nums = [0, 1, 2];
+var a = nums[0];
+var b = nums[1];
+var c = nums[2];
+							</code></pre>
+						</div>
+						<div class="fragment">
+							<p>We can use</p>
+							<pre><code class="javascript" data-trim>
+let [a, b, c] = nums;
+							</code></pre>
+						</div>
+						<div class="fragment">
+							<p>Also good for initializing a bunch of variables</p>
+							<pre><code class="javascript" data-trim>
+let [c, d, e, f, g, a, b] = ['Do','Re','Mi','Fa','Sol','La','Ti'];
+							</code></pre>
+						</div>
+					</section>
+
+					<section>
+						<h3>Destructuring Arrays</h3>
+
+						<p>Skipping over array indicies</p>
+						<pre><code class="javascript" data-trim id='des3Code'>
+let nums = [1, 2, 3, 4, 5, 6];
+let [a, ,b, ,c] = nums;
+console.log(a, b, c);
+						</code></pre>
+						<input class="runButton" type='button' value="Run" onclick='run("des3Code", "des3Output")'/>
+						<pre id="des3Output"></pre>
+					</section>
+
+					<section>
+						<h3>Destructuring Objects</h3>
+						<div class="fragment">
+							<p>Instead of...</p>
+							<pre><code class="javascript" data-trim>
+var name = {
+   first: "Max",
+   last: "Powers"
+};
+var first = name.first;
+var last = name.last;
+							</code></pre>
+						</div>
+						<div class="fragment">
+							<p>We can use</p>
+							<pre><code class="javascript" data-trim>
+let {first, last} = name;
+							</code></pre>
+						</div>
+					</section>
+
+					<section>
+						<h3>Destructuring in function parameters</h3>
+							<pre><code class="javascript" data-trim id='des1Code'>
+let city = {
+   name: 'Raleigh',
+   nickNames: [ 'City of Oaks', 'Raleighwood', 'ClayAikenville'],
+   area: { land: 142.8, water: 2.0 }
+}
+
+function printInfo({
+	name: name,
+	nickNames: [,,nickName], 
+	area: {land: landArea} 
+}) {
+   console.log("Name:", name);
+   console.log("AKA:", nickName);
+   console.log("Land area:", landArea, "sq mi");
+}
+printInfo(city);
+							</code></pre>
+							<input class="runButton" type='button' value="Run" onclick='run("des1Code", "des1Output")'/>
+							<pre id="des1Output"></pre>
+
+					</section>
+
+
+						<section>
+							<h3>Default Values</h3>
+							<pre><code class="javascript" data-trim id='des4Code'>
+
+//function search(term, {page: page = 1, limit: limit = 10})
+function search(term, {page = 1, limit = 10}) {
+	console.log("Search", term, 'page=', page, 'limit=', limit);
+}
+search('foo', {});
+search('bar', {page: 2, limit: 20});
+search('baz', {page: 3});
+search('qux');
+
+							</code></pre>
+						<input class="runButton" type='button' value="Run" onclick='run("des4Code", "des4Output")'/>
+						<pre id="des4Output"></pre>
+
+					</section>
+
+					<section>
+						<h3>Bonus! Swapping two variables</h3>
+						<pre><code class="javascript" data-trim id='des2Code'>
+let a = 1;
+let b = 2;
+
+[a, b] = [b, a];
+
+console.log('a=', a, 'b=', b);
+
+						</code></pre>
+						<input class="runButton" type='button' value="Run" onclick='run("des2Code", "des2Output")'/>
+						<pre id="des2Output"></pre>
+
+					</section>
+
+
+				</section>
+
+
+				<section>
+					<section>
+						<h3>Default Parameters</h3>
+						<pre><code class="javascript" data-trim id='def1Code'>
+function makeSandwich(meat, cheese='provolone', bacon=true) {
+   let sandwich = [];
+   sandwich.push('bread');
+   sandwich.push(meat);
+   sandwich.push(cheese);
+   if (bacon) { sandwich.push('bacon') };
+   sandwich.push('bread');
+   return sandwich;
+}
+
+let sandwich = makeSandwich('turkey');
+console.log(sandwich);
+
+						</code></pre>
+						<input class="runButton" type='button' value="Run" onclick='run("def1Code", "def1Output")'/>
+						<pre id="def1Output"></pre>
+					</section>
+	
+					<section>
+						<h3>Default Parameters</h3>
+						<h4>Function calls as parameters</h4>
+						<pre><code class="javascript" data-trim id='def2Code'>
+function getRandomCheese() {
+   const cheeses = ['american', 'provolone', 'swiss', 'muenster'];
+   return cheeses[Math.floor(Math.random()*cheeses.length)];
+}
+
+function makeSandwich(meat, cheese=getRandomCheese(), bacon=true) {
+   let sandwich = [];
+   sandwich.push('bread');
+   sandwich.push(meat);
+   sandwich.push(cheese);
+   if (bacon) { sandwich.push('bacon'); }
+   sandwich.push('bread');
+   return sandwich;
+}
+let sandwich = makeSandwich('turkey', undefined, false);
+console.log(sandwich);
+
+						</code></pre>
+						<input class="runButton" type='button' value="Run" onclick='run("def2Code", "def2Output")'/>
+						<pre id="def2Output"></pre>
+					</section>
+
+					<section>
+						<h3>Default Parameters</h3>
+						<h4>Referencing other parameters</h4>
+						<pre><code class="javascript" data-trim id='def3Code'>
+function makeSandwich(meat, cheese='swiss', 
+	bacon = (meat === 'turkey'? true: false)) {
+   let sandwich = [];
+   sandwich.push('bread');
+   sandwich.push(meat);
+   sandwich.push(cheese);
+   if (bacon) { sandwich.push('bacon'); }
+   sandwich.push('bread');
+   return sandwich;
+}
+
+let turkeySandwich = makeSandwich('turkey');
+console.log('turkey:', turkeySandwich);
+
+let hamSandwich = makeSandwich('ham');
+console.log('ham:', hamSandwich);
+						</code></pre>
+						<input class="runButton" type='button' value="Run" onclick='run("def3Code", "def3Output")'/>
+						<pre id="def3Output"></pre>
+					</section>
+					<section>
+
+						<h3>Default values with Destructuring</h3>
+						<pre><code class="javascript" data-trim id='des5Code'>
+function search(term, {page = 1, limit = 10} = {}) {
+	console.log("Search", term, 'page=', page, 'limit=', limit);
+}
+search('foo', {});
+search('bar', {page: 2, limit: 20});
+search('baz', {page: 3});
+search('qux');
+
+						</code></pre>
+						<input class="runButton" type='button' value="Run" onclick='run("des5Code", "des5Output")'/>
+						<pre id="des5Output"></pre>
+
+					</section>
+
+				</section>
+
+				<section>
+					<section>
+						<h3>Rest Parameters ...</h3>
+						<pre><code class="javascript" data-trim id='rest1Code'>
+function makePizza(crustType, ...toppings) {
+   let pizza = [];
+   pizza.push(crustType + ' crust');
+   pizza.push('sauce');
+   pizza.push('cheese');
+   return pizza.concat(toppings);
+}
+
+let pizza = makePizza('thin', 'peppers', 'onions', 'mushrooms');
+console.log(pizza);
+
+						</code></pre>
+						<input class="runButton" type='button' value="Run" onclick='run("rest1Code", "rest1Output")'/>
+						<pre id="rest1Output"></pre>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h3>Spread Operator ...</h3>
+						<h4>In function calls</h4>
+						<pre><code class="javascript" data-trim id='spread1Code'>
+function makeTwoToppingPizza(crustType, topping1, topping2) {
+   var pizza = [];
+   pizza.push(crustType + ' crust');
+   pizza.push('sauce');
+   pizza.push('cheese');
+   pizza.push(topping1);
+   pizza.push(topping2);
+   return pizza;
+}
+
+const toppings = ['bacon', 'jalapeños', 'onion', 'anchovies' ];
+
+//ES5: makeTwoToppingPizza('deep dish', toppings[0], toppings[1]);
+let pizza = makeTwoToppingPizza('deep dish', ...toppings);
+console.log(pizza);
+
+						</code></pre>
+						<input class="runButton" type='button' value="Run" onclick='run("spread1Code", "spread1Output")'/>
+						<pre id="spread1Output"></pre>
+					</section>
+
+					<section>
+						<h3>Spread Operator ...</h3>
+						<h4>In array literals</h4>
+						<pre><code class="javascript" data-trim id='spread2Code'>
+
+function makePizza(crustType, ...toppings) {
+   return [crustType + ' crust', 'sauce', 'cheese', ...toppings];
+}
+
+let pizza = makePizza('thin', 'sausage', 'pepperoni', 'ham');
+console.log(pizza);
+
+						</code></pre>
+						<input class="runButton" type='button' value="Run" onclick='run("spread2Code", "spread2Output")'/>
+						<pre id="spread2Output"></pre>
+					</section>
+
+				</section>
+
+				<section>
+
+					<section>
+						<h3>Template Strings `...`</h3>
+						<p>Multiline string declaration.</p>
+						<div class="fragment shrink">
+							<p>Instead of...</p>
+							<pre><code class="javascript" data-trim>
+var todoHTML = "<ol>\n<li>Not smoke</li>\n<li>Kiss June</li>\n" + 
+  "<li>Not kiss anyone else</li>\n<li>Cough</li>\n<li>Pee</li>\n" + 
+  "<li>Eat</li>\n<li>Not eat too much</li>\n<li>Worry</li>\n" +
+  "<li>Go see Mama</li>\n<li>Practice Piano</li>\n</ol>";
+							</code></pre>
+						</div>
+						<div class="fragment">
+							<p>We can use</p>
+							<pre><code class="javascript" data-trim>
+let todoHTML = `<ol>
+  <li>Not smoke</li>
+  <li>Kiss June</li>
+  <li>Not kiss anyone else</li>
+  <li>Cough</li>
+  <li>Pee</li>
+  <li>Eat</li>
+  <li>Not eat too much</li>
+  <li>Worry</li>
+  <li>Go see Mama</li>
+  <li>Practice Piano</li>
+</ol>`
+
+							</code></pre>
+						</div>
+					</section>
+
+					<section>
+						<h3>Template Strings `...`</h3>
+						<p>Embedded expressions ${...}</p>
+						<pre><code class="javascript" data-trim id='temp1Code'>
+let [my, hat, three, corners] = ['my', 'hat', 'three', 'corners'];
+my = '__';
+hat = '___';
+
+let lyrics = `${my} ${hat} it has ${three} ${corners},
+${three} ${corners} has ${my} ${hat}.
+And had it not ${three} ${corners},
+it would not be ${my} ${hat}.`
+
+console.log(lyrics);
+
+						</code></pre>
+						<input class="runButton" type='button' value="Run" onclick='run("temp1Code", "temp1Output")'/>
+						<pre id="temp1Output"></pre>
+					</section>
+
+				</section>
+
+				<section>
+					<h1>Thank you!</h1>
+					<p>References:</p>
+						<ul>
+							<li><a href="https://babeljs.io/">Babel</a></li>
+							<li><a href="https://kangax.github.io/compat-table/es6/">ECMAScript Compatibility Table</a></li>
+							<li><a href="http://lab.hakim.se/reveal-js/">reveal.js (presentation library)</a></li>
+						</ul>
+
+				</section>
+
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
